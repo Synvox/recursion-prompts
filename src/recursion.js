@@ -19,27 +19,52 @@ var factorial = function(n) {
 
 // 2. Compute the sum of an array of integers.
 // Example:  sum([1, 2, 3, 4, 5, 6]);  // 21
+// NOTE: not recursion. This is a solution from functional programming
 var sum = function(array) {
+  return array.reduce((a, b)=>{
+    return a + b
+  }, 0)
 };
 
 // 3. Sum all numbers in an array containing nested arrays.
 // Example: arraySum([1,[2,3],[[4]],5]); // 15
 var arraySum = function(array) {
+  return sum(array.map((item)=>{
+    if (Array.isArray(item))
+      return arraySum(item)
+    else 
+      return item
+  }))
 };
 
 // 4. Check if a number is even.
+// NOTE, I'm not sure why you would ever want to solve this with recursion
 var isEven = function(n) {
+  return n % 2 === 0
 };
 
 // 5. Sum all integers below a given integer.
 // sumBelow(10); // 45
 // sumBelow(7); // 21
 var sumBelow = function(n) {
+  if (n === 0)
+    return 0
+  else
+    return --n + sumBelow(n)
 };
 
 // 6. Get the integers in range (x, y).
 // Example:  range(2, 9);  // [3, 4, 5, 6, 7, 8]
+// NOTE, you could solve this with recursion, but I don't know why you would...
+// When you use recursion without a good reason, your code gets difficult to
+// maintain and seems to work through dark magic.
+// plus function calls are VERY expensive in JavaScript. For loops and array functions
+// are fast and prefered in practice.
 var range = function(x, y) {
+  const arr = []
+  for(let i = x + 1; i < y; i++)
+    arr.push(i)
+  return arr
 };
 
 // 7. Compute the exponent of a number.
@@ -48,6 +73,9 @@ var range = function(x, y) {
 // Example:  exponent(4,3);  // 64
 // https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/computing-powers-of-a-number
 var exponent = function(base, exp) {
+  if (exp === 0)
+    return 1
+  return base * exponent(base, --exp)
 };
 
 // 8. Determine if a number is a power of two.
@@ -55,10 +83,20 @@ var exponent = function(base, exp) {
 // powerOfTwo(16); // true
 // powerOfTwo(10); // false
 var powerOfTwo = function(n) {
+  if (n === 1)
+    return true
+  if (isEven(n))
+    return powerOfTwo(n / 2)
+  else
+    return false
 };
 
 // 9. Write a function that accepts a string a reverses it.
+// NOTE, bad example of recursion. in practice use String.prototype.reverse
 var reverse = function(string) {
+  if (string === '')
+    return ''
+  return string[string.length-1] + reverse(string.substring(0, string.length - 1))
 };
 
 // 10. Write a function that determines if a string is a palindrome.
@@ -71,16 +109,27 @@ var palindrome = function(string) {
 // modulo(17,5) // 2
 // modulo(22,6) // 4
 var modulo = function(x, y) {
+  if (y <= x)
+    return y
+  return modulo(x - y, y)
 };
 
 // 12. Write a function that multiplies two numbers without using the * operator  or
 // JavaScript's Math object.
 var multiply = function(x, y) {
+  if (x === 0 || y === 0)
+    return 0
+  return x + multiply(x, --y)
 };
 
 // 13. Write a function that divides two numbers without using the / operator  or
 // JavaScript's Math object.
 var divide = function(x, y) {
+  if (y === 0)
+    return NaN
+  if (x < y)
+    return 0
+  return 1 + divide(x - y, y)
 };
 
 // 14. Find the greatest common divisor (gcd) of two positive numbers.  The GCD of two
@@ -89,6 +138,7 @@ var divide = function(x, y) {
 // http://www.cse.wustl.edu/~kjg/cse131/Notes/Recursion/recursion.html
 // https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/the-euclidean-algorithm
 var gcd = function(x, y) {
+  
 };
 
 // 15. Write a function that compares each character of two strings and returns true if
@@ -97,32 +147,55 @@ var gcd = function(x, y) {
 // compareStr('', '') // true
 // compareStr('tomato', 'tomato') // true
 var compareStr = function(str1, str2) {
+  if (str1.length !== str2.length) return false
+  if (str1.length === 0) return true
+  return str1[0] === str2[0] && compareStr(str1.substring(1), str2.substring(1))
 };
 
 // 16. Write a function that accepts a string and creates an array where each letter
 // occupies an index of the array.
 var createArray = function(str) {
+  if (str === '') return []
+  return [str[0]].concat(createArray(str.substring(1)))
 };
 
 // 17. Reverse the order of an array
 var reverseArr = function (array) {
+  if (array.length === 0)
+    return []
+  return [array[array.length-1]].concat(reverseArr(array.slice(0, array.length - 1)))
 };
 
 // 18. Create a new array with a given value and length.
 // buildList(0,5) // [0,0,0,0,0]
 // buildList(7,3) // [7,7,7]
 var buildList = function(value, length) {
+  if (length === 0) return []
+  return [value].concat(buildList(value, length - 1))
 };
 
 // 19. Count the occurence of a value inside a list.
 // countOccurrence([2,7,4,4,1,4], 4) // 3
 // countOccurrence([2,'banana',4,4,1,'banana'], 'banana') // 2
+// NOTE, This is a bad example of where you would want recursion.
+// The easiest way is to:
+// return array.filter(item=>item === value).length
 var countOccurrence = function(array, value) {
+  if (array.length === 0) return 0
+  return Number(array[0] === value) + countOccurrence(array.slice(1), value)
 };
 
 // 20. Write a recursive version of map.
 // rMap([1,2,3], timesTwo); // [2,4,6]
+// NOTE, **REALLLLLLLLY** bad place to use recursion.
+// Function calls push to the call stack. This means that when you get a large array (10,000-50,000+)
+// you'll exced the call stack and cause a stack overflow. These are difficult to debug
+// especially with utility functions like this.
+// This is good to learn to write recursive functions, but this is NOT something you want 
+// to do in practice. 
 var rMap = function(array, callback) {
+  if (array.length === 0) return []
+  return [callback(array[0])].concat(rMap(array.slice(1), callback))
 };
 
 // 21. Write a function that counts the number of times a key occurs in an object.
@@ -130,6 +203,9 @@ var rMap = function(array, callback) {
 // countKeysInObj(testobj, 'r') // 1
 // countKeysInObj(testobj, 'e') // 2
 var countKeysInObj = function(obj, key) {
+  if (typeof obj !== 'object') return 0
+  const keys = Object.keys(obj)
+  return countOccurrence(keys, key) + sum(rMap(keys, prop=>countKeysInObj(obj[prop], key)))
 };
 
 // 22. Write a function that counts the number of times a value occurs in an object.
@@ -164,11 +240,13 @@ var nthFibo = function(n) {
 // var words = ['i', 'am', 'learning', 'recursion'];
 // capitalizedWords(words); // ['I', 'AM', 'LEARNING', 'RECURSION']
 var capitalizeWords = function(array) {
+  return rMap(array, word=>word.toUpperCase())
 };
 
 // 27. Given an array of strings, capitalize the first letter of each index.
 // capitalizeFirst(['car', 'poop', 'banana']); // ['Car', 'Poop', 'Banana']
 var capitalizeFirst = function(array) {
+  return rMap(array, word=>word[0].toUpperCase() + word.substring(1))
 };
 
 // 28. Return the sum of all even numbers in an object containing nested objects.
@@ -217,7 +295,16 @@ var minimizeZeroes = function(array) {
 // their original sign.  The first number in the index always needs to be positive.
 // alternateSign([2,7,8,3,1,4]) // [2,-7,8,-3,1,-4]
 // alternateSign([-2,-7,8,3,-1,4]) // [2,-7,8,-3,1,-4]
+// NOTE, when there is a specific case for a recursive function, like this one, where
+// the first value must be positive, You MUST pass some `state` back into the function
+// as a param.
+// Example,
+// alternateSign(array, isFirst=true){
+//   ...some calculations...
+//   alternateSign(array, false)
+// }
 var alternateSign = function(array) {
+
 };
 
 // 35. Given a string, return a string with digits converted to their word equivalent.
